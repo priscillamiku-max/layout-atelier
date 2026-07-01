@@ -1,0 +1,1795 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Layout Atelier</title>
+  <style>
+    :root {
+      --bg: #f5f1e9;
+      --paper: #fffdf8;
+      --paper-soft: #eee7dc;
+      --ink: #15130f;
+      --muted: #766f65;
+      --quiet: #aaa196;
+      --line: rgba(21, 19, 15, 0.15);
+      --line-strong: rgba(21, 19, 15, 0.32);
+      --accent: #8d4e34;
+      --accent-soft: rgba(141, 78, 52, 0.12);
+      --deep-green: #223b35;
+      --blue-grey: #6d7f8c;
+      --wine: #7b2639;
+      --shadow: 0 28px 90px rgba(40, 30, 16, 0.10);
+      --serif: "Times New Roman", "Noto Serif SC", "Songti SC", serif;
+      --sans: "Inter", "Noto Sans SC", "Microsoft YaHei", Arial, sans-serif;
+      --mono: "Courier New", monospace;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: var(--sans);
+      background:
+        linear-gradient(rgba(21, 19, 15, 0.028) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(21, 19, 15, 0.024) 1px, transparent 1px),
+        var(--bg);
+      background-size: 64px 64px;
+    }
+
+    button, textarea, input { font: inherit; }
+    button { cursor: pointer; }
+    button:focus-visible, textarea:focus-visible, input:focus-visible {
+      outline: 2px solid rgba(141, 78, 52, 0.45);
+      outline-offset: 2px;
+    }
+
+    .app {
+      min-height: 100vh;
+      padding: 22px;
+    }
+
+    .masthead {
+      position: fixed;
+      top: 22px;
+      left: 24px;
+      right: 24px;
+      z-index: 20;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      pointer-events: none;
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+    }
+
+    .masthead span {
+      pointer-events: auto;
+    }
+
+    .start-view {
+      min-height: calc(100vh - 44px);
+      display: grid;
+      place-items: center;
+      padding: 72px 20px;
+    }
+
+    .desk-card {
+      width: min(860px, 100%);
+      position: relative;
+      padding: clamp(28px, 4.8vw, 50px);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 253, 248, 0.88);
+      box-shadow: var(--shadow);
+    }
+
+    .desk-card::before {
+      content: "";
+      position: absolute;
+      top: -17px;
+      left: 50%;
+      width: 118px;
+      height: 32px;
+      transform: translateX(-50%);
+      border: 1px solid var(--line);
+      border-bottom: 0;
+      border-radius: 18px 18px 0 0;
+      background: #e2d9cb;
+    }
+
+    .start-grid {
+      display: grid;
+      grid-template-columns: 0.95fr 1.25fr;
+      gap: clamp(24px, 4vw, 52px);
+      align-items: start;
+    }
+
+    .kicker {
+      color: var(--accent);
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    h1, h2, h3, p { margin-top: 0; }
+
+    .start-title {
+      margin: 18px 0 22px;
+      font-family: var(--serif);
+      font-size: clamp(48px, 8vw, 88px);
+      font-weight: 400;
+      line-height: 0.92;
+      letter-spacing: 0;
+    }
+
+    .start-note {
+      max-width: 330px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.9;
+    }
+
+    .edition-list {
+      margin-top: 34px;
+      display: grid;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .edition-list div {
+      display: grid;
+      grid-template-columns: 42px 1fr;
+      gap: 14px;
+      padding-top: 10px;
+      border-top: 1px solid var(--line);
+    }
+
+    .composer {
+      display: grid;
+      gap: 14px;
+    }
+
+    .compose-box {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.44);
+      overflow: hidden;
+    }
+
+    .compose-box textarea {
+      display: block;
+      width: 100%;
+      min-height: 210px;
+      border: 0;
+      padding: 20px;
+      resize: vertical;
+      outline: 0;
+      color: var(--ink);
+      background: transparent;
+      line-height: 1.75;
+    }
+
+    .compose-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px;
+      border-top: 1px solid var(--line);
+    }
+
+    .material-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .material-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.42);
+      overflow: hidden;
+    }
+
+    .material-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: baseline;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .material-head strong {
+      font-family: var(--serif);
+      font-size: 18px;
+      font-weight: 400;
+    }
+
+    .material-head span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .material-card textarea,
+    .material-card input[type="url"] {
+      display: block;
+      width: 100%;
+      border: 0;
+      outline: 0;
+      color: var(--ink);
+      background: transparent;
+      line-height: 1.7;
+    }
+
+    .material-card textarea {
+      min-height: 124px;
+      padding: 16px 18px;
+      resize: vertical;
+    }
+
+    .material-card input[type="url"] {
+      min-height: 48px;
+      padding: 0 18px;
+    }
+
+    .file-drop {
+      display: grid;
+      gap: 10px;
+      place-items: center;
+      min-height: 112px;
+      padding: 16px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .file-drop.compact {
+      min-height: 86px;
+    }
+
+    .two-up {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .btn, .pill, .icon-btn {
+      min-height: 36px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: transparent;
+      color: var(--ink);
+      transition: background 160ms ease, border-color 160ms ease, transform 160ms ease;
+    }
+
+    .btn {
+      padding: 0 14px;
+      font-size: 13px;
+    }
+
+    .btn:hover, .pill:hover, .icon-btn:hover {
+      transform: translateY(-1px);
+      border-color: var(--line-strong);
+      background: rgba(255, 255, 255, 0.42);
+    }
+
+    .btn.primary {
+      border-color: var(--ink);
+      background: var(--ink);
+      color: var(--paper);
+    }
+
+    .btn.subtle {
+      background: rgba(255, 253, 248, 0.62);
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .setup-card {
+      display: grid;
+      gap: 12px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(238, 231, 220, 0.42);
+    }
+
+    .start-setup-card {
+      margin-top: 22px;
+    }
+
+    .start-setup-card .choice-panel {
+      grid-template-columns: 1fr;
+    }
+
+    .ratio-panel {
+      display: grid;
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    .ratio-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .ratio-choice {
+      min-height: 58px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 253, 248, 0.58);
+      text-align: left;
+      color: var(--ink);
+    }
+
+    .ratio-choice.is-selected {
+      border-color: rgba(141, 78, 52, 0.58);
+      background: var(--accent-soft);
+    }
+
+    .ratio-choice strong {
+      display: block;
+      font-family: var(--serif);
+      font-size: 17px;
+      font-weight: 400;
+    }
+
+    .ratio-choice span {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .setup-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .setup-head strong {
+      color: var(--ink);
+      font-family: var(--serif);
+      font-size: 18px;
+      font-weight: 400;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .pill {
+      padding: 8px 11px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .pill.active {
+      border-color: rgba(141, 78, 52, 0.42);
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    .choice-panel {
+      display: none;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .choice-panel.open { display: grid; }
+
+    .panel .choice-panel {
+      grid-template-columns: 1fr;
+    }
+
+    .choice-card {
+      text-align: left;
+      min-height: 92px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 253, 248, 0.62);
+      color: var(--ink);
+    }
+
+    .choice-card.is-selected {
+      border-color: rgba(141, 78, 52, 0.58);
+      background: rgba(141, 78, 52, 0.10);
+    }
+
+    .choice-card strong {
+      display: block;
+      margin-bottom: 6px;
+      font-family: var(--serif);
+      font-size: 18px;
+      font-weight: 400;
+    }
+
+    .choice-card span {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .segmentation-guide {
+      display: grid;
+      gap: 10px;
+      padding: 12px 14px 14px;
+      border-top: 1px solid var(--line);
+      background: rgba(238, 231, 220, 0.24);
+    }
+
+    .segment-rules {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .rule-chip {
+      padding: 6px 9px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      background: rgba(255, 253, 248, 0.62);
+      font-size: 11px;
+    }
+
+    .mini-segments {
+      display: grid;
+      gap: 7px;
+    }
+
+    .mini-segment {
+      display: grid;
+      grid-template-columns: 52px 1fr;
+      gap: 8px;
+      align-items: start;
+      padding: 8px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 253, 248, 0.64);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .mini-segment strong {
+      color: var(--accent);
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .mini-segment span {
+      color: var(--ink);
+      white-space: pre-wrap;
+    }
+
+    .asset-strip {
+      display: none;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .asset-strip.has-assets { display: flex; }
+
+    .asset-token {
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      background: rgba(255, 253, 248, 0.62);
+      font-size: 12px;
+    }
+
+    .extraction-grid {
+      display: grid;
+      gap: 8px;
+    }
+
+    .extracted-card {
+      display: grid;
+      gap: 5px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.42);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .extracted-card strong {
+      font-family: var(--serif);
+      font-size: 16px;
+      font-weight: 400;
+    }
+
+    .workspace {
+      display: none;
+      min-height: calc(100vh - 44px);
+      grid-template-rows: auto minmax(0, 1fr);
+      gap: 12px;
+    }
+
+    .workspace.active { display: grid; }
+    .start-view.hidden { display: none; }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: minmax(180px, 1fr) auto minmax(180px, 1fr);
+      gap: 12px;
+      align-items: center;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 253, 248, 0.88);
+    }
+
+    .brand {
+      font-family: var(--serif);
+      font-size: 21px;
+      line-height: 1;
+    }
+
+    .brand small {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-family: var(--sans);
+      font-size: 12px;
+    }
+
+    .toolbar-center, .toolbar-actions {
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .toolbar-actions { justify-content: flex-end; }
+
+    .work-grid {
+      display: grid;
+      grid-template-columns: minmax(210px, 260px) minmax(300px, 1fr) minmax(220px, 280px);
+      gap: 12px;
+      min-height: 0;
+    }
+
+    .panel, .canvas-stage {
+      min-height: 0;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 253, 248, 0.80);
+      overflow: hidden;
+    }
+
+    .panel {
+      padding: 14px;
+      overflow-y: auto;
+    }
+
+    .panel-section {
+      padding-bottom: 15px;
+      margin-bottom: 15px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .panel-section:last-child {
+      margin-bottom: 0;
+      border-bottom: 0;
+    }
+
+    .panel h2, .panel h3 {
+      margin-bottom: 10px;
+      font-family: var(--serif);
+      font-size: 21px;
+      font-weight: 400;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.65;
+    }
+
+    .empty-state {
+      padding: 12px;
+      border: 1px dashed var(--line-strong);
+      border-radius: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+      background: rgba(255, 253, 248, 0.45);
+    }
+
+    .summary-item {
+      padding: 10px 0;
+      border-bottom: 1px solid var(--line);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .summary-item:last-child { border-bottom: 0; }
+
+    .segments-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .segment-card {
+      display: grid;
+      gap: 6px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.42);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .segment-card strong {
+      color: var(--accent);
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .segment-card span {
+      color: var(--ink);
+      white-space: pre-wrap;
+    }
+
+    .prompt {
+      display: grid;
+      gap: 8px;
+    }
+
+    .prompt textarea {
+      width: 100%;
+      min-height: 92px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 11px;
+      resize: vertical;
+      outline: 0;
+      background: rgba(255, 255, 255, 0.46);
+      line-height: 1.6;
+    }
+
+    .canvas-stage {
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      background:
+        linear-gradient(rgba(21, 19, 15, 0.028) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(21, 19, 15, 0.024) 1px, transparent 1px),
+        #ebe4d8;
+      background-size: 32px 32px;
+    }
+
+    .canvas-bar {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .canvas-wrap {
+      position: relative;
+      display: grid;
+      place-items: center;
+      min-height: 0;
+      padding: 20px;
+    }
+
+    .poster {
+      position: relative;
+      width: min(54vh, 390px);
+      max-width: 82%;
+      aspect-ratio: 4 / 5;
+      overflow: hidden;
+      border-radius: 3px;
+      background: #fbf6ec;
+      box-shadow: 0 22px 70px rgba(21, 19, 15, 0.18);
+    }
+
+    .poster::before {
+      content: "";
+      position: absolute;
+      inset: 24px;
+      border: 1px solid rgba(21, 19, 15, 0.18);
+      pointer-events: none;
+    }
+
+    .poster-media {
+      position: absolute;
+      top: 58px;
+      left: 42px;
+      right: 42px;
+      height: 37%;
+      background:
+        linear-gradient(145deg, var(--deep-green), rgba(109, 127, 140, 0.64)),
+        radial-gradient(circle at 75% 20%, rgba(255, 253, 248, 0.95), transparent 30%);
+    }
+
+    .poster-label {
+      position: absolute;
+      top: 30px;
+      left: 42px;
+      color: #7b7166;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    .poster-title {
+      position: absolute;
+      left: 42px;
+      right: 40px;
+      bottom: 118px;
+      margin: 0;
+      font-family: var(--serif);
+      font-size: clamp(42px, 5vw, 58px);
+      font-weight: 400;
+      line-height: 0.9;
+      letter-spacing: 0;
+    }
+
+    .poster-copy {
+      position: absolute;
+      left: 42px;
+      right: 92px;
+      bottom: 52px;
+      color: #675e54;
+      font-size: 12px;
+      line-height: 1.62;
+    }
+
+    .poster.layout-horizontal .poster-media {
+      top: 44px;
+      left: 44%;
+      right: 38px;
+      height: calc(100% - 96px);
+    }
+
+    .poster.layout-horizontal .poster-title {
+      left: 38px;
+      right: 60%;
+      bottom: 128px;
+      font-size: clamp(34px, 4vw, 50px);
+    }
+
+    .poster.layout-horizontal .poster-copy {
+      left: 38px;
+      right: 62%;
+      bottom: 44px;
+    }
+
+    .poster.layout-gallery .poster-media {
+      top: 48px;
+      left: 38px;
+      right: 38px;
+      height: 47%;
+      background-size: cover;
+    }
+
+    .poster.layout-gallery .poster-media::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, transparent calc(50% - 1px), rgba(255,255,255,0.72) calc(50% - 1px), rgba(255,255,255,0.72) calc(50% + 1px), transparent calc(50% + 1px)),
+        linear-gradient(transparent calc(50% - 1px), rgba(255,255,255,0.72) calc(50% - 1px), rgba(255,255,255,0.72) calc(50% + 1px), transparent calc(50% + 1px));
+      pointer-events: none;
+    }
+
+    .poster.layout-text-heavy .poster-media {
+      top: 54px;
+      left: auto;
+      right: 42px;
+      width: 34%;
+      height: 24%;
+    }
+
+    .poster.layout-text-heavy .poster-title {
+      top: 34%;
+      bottom: auto;
+      font-size: clamp(34px, 4.2vw, 50px);
+      line-height: 0.96;
+    }
+
+    .poster.layout-text-heavy .poster-copy {
+      left: 42px;
+      right: 42px;
+      bottom: 52px;
+      columns: 2;
+      column-gap: 18px;
+      max-height: 30%;
+      overflow: hidden;
+    }
+
+    .poster-date {
+      position: absolute;
+      right: 38px;
+      bottom: 52px;
+      color: var(--accent);
+      font-family: var(--mono);
+      font-size: 11px;
+      writing-mode: vertical-rl;
+    }
+
+    .selection {
+      position: absolute;
+      left: 9%;
+      bottom: 24%;
+      width: 62%;
+      height: 20%;
+      border: 1.5px solid var(--accent);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .poster.selected .selection { opacity: 1; }
+
+    .floating-note {
+      position: absolute;
+      right: 18px;
+      bottom: 18px;
+      display: none;
+      width: min(260px, calc(100% - 36px));
+      padding: 12px;
+      border: 1px solid rgba(141, 78, 52, 0.38);
+      border-radius: 8px;
+      background: rgba(255, 253, 248, 0.95);
+      box-shadow: 0 18px 48px rgba(21, 19, 15, 0.12);
+    }
+
+    .floating-note.visible { display: grid; gap: 10px; }
+
+    .font-card, .color-card {
+      display: grid;
+      gap: 5px;
+      width: 100%;
+      padding: 10px;
+      text-align: left;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.42);
+      color: var(--ink);
+    }
+
+    .font-card.is-selected, .color-card.is-selected {
+      border-color: rgba(141, 78, 52, 0.56);
+      background: var(--accent-soft);
+    }
+
+    .font-card strong, .color-card strong {
+      font-family: var(--serif);
+      font-size: 17px;
+      font-weight: 400;
+    }
+
+    .color-card em {
+      color: var(--muted);
+      font-style: normal;
+      font-size: 11px;
+      line-height: 1.45;
+    }
+
+    .swatch-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 5px;
+      height: 18px;
+      overflow: hidden;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+    }
+
+    .swatch-row span { display: block; }
+
+    .color-tuner {
+      display: grid;
+      gap: 9px;
+      margin-top: 12px;
+      padding: 11px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 253, 248, 0.52);
+    }
+
+    .color-field {
+      display: grid;
+      grid-template-columns: 72px 40px 1fr;
+      gap: 8px;
+      align-items: center;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .color-field input[type="color"] {
+      width: 40px;
+      height: 32px;
+      padding: 0;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: transparent;
+    }
+
+    .color-field input[type="text"] {
+      width: 100%;
+      min-height: 32px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 0 10px;
+      color: var(--ink);
+      background: rgba(255, 255, 255, 0.48);
+      font-family: var(--mono);
+      font-size: 11px;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 40;
+      display: none;
+      place-items: center;
+      padding: 22px;
+      background: rgba(21, 19, 15, 0.28);
+    }
+
+    .modal-backdrop.open { display: grid; }
+
+    .modal {
+      width: min(520px, 100%);
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper);
+      box-shadow: var(--shadow);
+    }
+
+    .modal h2 {
+      font-family: var(--serif);
+      font-weight: 400;
+      font-size: 30px;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 18px;
+    }
+
+    .link-input {
+      width: 100%;
+      min-height: 40px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 0 14px;
+      background: rgba(255, 255, 255, 0.55);
+    }
+
+    input[type="file"] { display: none; }
+
+    @media (max-width: 760px) {
+      .app { padding: 14px; }
+      .masthead { position: static; margin-bottom: 14px; }
+      .start-grid, .work-grid, .toolbar { grid-template-columns: 1fr; }
+      .two-up { grid-template-columns: 1fr; }
+      .toolbar-center, .toolbar-actions { justify-content: flex-start; }
+      .start-view { padding: 24px 0; }
+      .poster { width: min(72vw, 340px); }
+      .choice-panel { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="masthead">
+      <span>Layout Atelier</span>
+      <span>Editorial Poster System</span>
+    </div>
+
+    <main id="startView" class="start-view">
+      <section class="desk-card" aria-labelledby="startTitle">
+        <div class="start-grid">
+          <div>
+            <div class="kicker">Brief / Composition / Output</div>
+            <h1 id="startTitle" class="start-title">Layout<br>Atelier</h1>
+            <p class="start-note">把零散文字、图片、链接与参考放在同一处。先定风格与色彩，再进入画布。</p>
+            <div class="edition-list" aria-label="工作流说明">
+              <div><span>01</span><span>收集内容与素材</span></div>
+              <div><span>02</span><span>确认风格、色彩与比例</span></div>
+              <div><span>03</span><span>进入工作台继续编辑</span></div>
+            </div>
+            <div class="setup-card ratio-panel">
+              <div class="setup-head">
+                <strong>比例与方向</strong>
+                <span>生成前先定画布</span>
+              </div>
+              <div class="ratio-grid" id="startRatioChoices" aria-label="比例与方向选择">
+                <button class="ratio-choice is-selected" type="button" data-start-ratio="auto">
+                  <strong>Auto</strong><span>根据 brief 与素材判断</span>
+                </button>
+                <button class="ratio-choice" type="button" data-start-ratio="9:16">
+                  <strong>9:16</strong><span>手机竖版 / 故事页</span>
+                </button>
+                <button class="ratio-choice" type="button" data-start-ratio="4:5">
+                  <strong>4:5</strong><span>社媒竖版 / 通用海报</span>
+                </button>
+                <button class="ratio-choice" type="button" data-start-ratio="16:9">
+                  <strong>16:9</strong><span>横版 / 屏幕横幅</span>
+                </button>
+                <button class="ratio-choice" type="button" data-start-ratio="1:1">
+                  <strong>1:1</strong><span>方形 / 封面</span>
+                </button>
+                <button class="ratio-choice" type="button" data-start-ratio="A4">
+                  <strong>A4</strong><span>打印 / 提案</span>
+                </button>
+              </div>
+            </div>
+            <div class="setup-card start-setup-card">
+              <div class="setup-head">
+                <strong>风格与色彩</strong>
+                <span id="setupLabel">Editorial Minimal / 象牙黑墨</span>
+              </div>
+              <p class="muted">分类来源：这是为海报排版工具整理的设计语义分类；参考设计 skill 的通用风格域，不是某一个官方设计网站的原样分类。</p>
+              <div class="chips">
+                <span id="selectedStyleChip" class="pill active">Editorial Minimal</span>
+                <span id="selectedPaletteChip" class="pill active">象牙黑墨</span>
+                <span id="ratioChip" class="pill">自动判断比例</span>
+              </div>
+              <div class="button-row">
+                <button id="toggleStyleBtn" class="btn subtle" type="button">选择风格</button>
+                <button id="togglePaletteBtn" class="btn subtle" type="button">选择色彩</button>
+              </div>
+              <div id="styleChoices" class="choice-panel" aria-label="风格选择"></div>
+              <div id="paletteChoices" class="choice-panel" aria-label="色彩选择"></div>
+            </div>
+          </div>
+
+          <div class="composer">
+            <div class="material-grid">
+              <div class="material-card">
+                <div class="material-head">
+                  <strong>Brief</strong>
+                  <span>比例、风格、场景、重点给系统看</span>
+                </div>
+                <textarea id="briefInput" aria-label="Brief" placeholder="例如：做一张 9:16 竖版海报，风格偏 Editorial Minimal，突出产品名和日期，参考图的感觉要安静、有留白。"></textarea>
+              </div>
+
+              <div class="material-card">
+                <div class="material-head">
+                  <strong>文字素材</strong>
+                  <span>真正要放进海报的文字，会先被拆成段落</span>
+                </div>
+                <textarea id="copyInput" aria-label="海报文字素材" placeholder="第 1 段通常会作为标题&#10;&#10;空一行后是第 2 段，可作为副标题/时间地点&#10;&#10;- 项目符号会被识别为独立信息&#10;1. 序号也会被识别为独立信息"></textarea>
+                <div class="segmentation-guide" aria-live="polite">
+                  <div class="muted">怎样算分段：空一行、单独换行、项目符号、数字序号都会被识别。第 1 段优先作为标题，其余段落作为副标题、说明或信息块。</div>
+                  <div class="segment-rules" aria-label="分段规则">
+                    <span class="rule-chip">空一行 = 新段</span>
+                    <span class="rule-chip">换行 = 新段</span>
+                    <span class="rule-chip">- / • = 信息点</span>
+                    <span class="rule-chip">1. / 1、 = 序号段</span>
+                  </div>
+                  <div id="liveSegmentPreview" class="mini-segments">
+                    <div class="empty-state">在上方输入文字后，这里会立即显示分段结果。</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="two-up">
+                <div class="material-card">
+                  <div class="material-head">
+                    <strong>成品素材</strong>
+                    <span>会直接进入海报</span>
+                  </div>
+                  <div class="file-drop compact">
+                    <button id="addFileBtn" class="btn subtle" type="button">上传原图</button>
+                    <span>产品图、人物图、Logo；第一张作为主视觉。</span>
+                  </div>
+                </div>
+
+                <div class="material-card">
+                  <div class="material-head">
+                    <strong>参考素材</strong>
+                    <span>只提取风格或候选元素</span>
+                  </div>
+                  <div class="file-drop compact">
+                    <button id="addReferenceBtn" class="btn subtle" type="button">上传参考图</button>
+                    <span>截图、参考风格、想抠/仿生成的图。</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="material-card">
+                <div class="material-head">
+                  <strong>链接素材</strong>
+                  <span>官网、产品页、文章页</span>
+                </div>
+                <input id="inlineLinkInput" type="url" placeholder="https://example.com">
+                <div class="compose-actions">
+                  <button id="addInlineLinkBtn" class="btn subtle" type="button">加入链接</button>
+                  <button id="generateBtn" class="btn primary" type="button">生成画布</button>
+                </div>
+              </div>
+            </div>
+
+            <input id="imageInput" type="file" accept="image/*" multiple>
+            <input id="referenceInput" type="file" accept="image/*" multiple>
+            <div id="assetStrip" class="asset-strip" aria-live="polite"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <main id="workspace" class="workspace" aria-label="设计工作台">
+      <header class="toolbar">
+        <div class="brand">Layout Atelier<small id="projectStatus">Untitled / saved locally</small></div>
+        <div class="toolbar-center">
+          <button class="btn subtle ratio-btn" type="button" data-ratio="4:5">4:5</button>
+          <button class="btn subtle ratio-btn" type="button" data-ratio="9:16">9:16</button>
+          <button class="btn subtle ratio-btn" type="button" data-ratio="16:9">16:9</button>
+          <button class="btn subtle ratio-btn" type="button" data-ratio="A4">A4</button>
+        </div>
+        <div class="toolbar-actions">
+          <button id="historyBtn" class="btn subtle" type="button">历史</button>
+          <button id="exportBtn" class="btn primary" type="button">导出</button>
+        </div>
+      </header>
+
+      <section class="work-grid">
+        <aside class="panel" aria-label="内容与素材">
+          <section class="panel-section">
+            <h2>Brief</h2>
+            <div id="briefSummary" class="empty-state">还没有输入内容。生成后这里会显示内容摘要。</div>
+          </section>
+          <section class="panel-section">
+            <h3>文字分段</h3>
+            <div id="segmentSummary" class="empty-state">生成后会按空行、换行、项目符号和序号拆分文字素材。</div>
+          </section>
+          <section class="panel-section">
+            <h3>素材</h3>
+            <div id="assetSummary" class="empty-state">尚未添加素材。可继续上传图片、截图或链接。</div>
+            <div class="button-row" style="margin-top:10px">
+              <button class="btn subtle" type="button" id="sideUploadBtn">添加原图</button>
+              <button class="btn subtle" type="button" id="sideReferenceBtn">添加参考</button>
+              <button class="btn subtle" type="button" id="sideLinkBtn">添加链接</button>
+            </div>
+          </section>
+          <section class="panel-section">
+            <h3>风格与色彩</h3>
+            <div id="workspaceStyleChoices" class="choice-panel open"></div>
+            <div id="workspacePaletteChoices" class="choice-panel open" style="margin-top:10px"></div>
+            <div class="color-tuner" aria-label="精确调色">
+              <p class="muted">精确调色：用于二次互动时微调画布底色、文字色、强调色和辅助色。</p>
+              <label class="color-field">
+                <span>画布底色</span>
+                <input id="paperColorInput" type="color" data-color-index="0" aria-label="画布底色">
+                <input id="paperHexInput" type="text" data-hex-index="0" aria-label="画布底色 HEX">
+              </label>
+              <label class="color-field">
+                <span>文字色</span>
+                <input id="inkColorInput" type="color" data-color-index="1" aria-label="文字色">
+                <input id="inkHexInput" type="text" data-hex-index="1" aria-label="文字色 HEX">
+              </label>
+              <label class="color-field">
+                <span>强调色</span>
+                <input id="accentColorInput" type="color" data-color-index="2" aria-label="强调色">
+                <input id="accentHexInput" type="text" data-hex-index="2" aria-label="强调色 HEX">
+              </label>
+              <label class="color-field">
+                <span>辅助色</span>
+                <input id="supportColorInput" type="color" data-color-index="3" aria-label="辅助色">
+                <input id="supportHexInput" type="text" data-hex-index="3" aria-label="辅助色 HEX">
+              </label>
+            </div>
+          </section>
+          <section class="panel-section">
+            <h3>素材提取台</h3>
+            <div id="extractionSummary" class="empty-state">添加参考图、截图或链接后，这里会显示可用文字、风格线索和候选素材。</div>
+            <div class="button-row" style="margin-top:10px">
+              <button class="btn subtle" type="button" id="extractMoreBtn">继续提取</button>
+            </div>
+          </section>
+          <section class="panel-section">
+            <h3>继续修改</h3>
+            <div class="prompt">
+              <textarea id="refineInput" aria-label="继续修改要求" placeholder="例如：标题更轻一点，主图留白更多。"></textarea>
+              <button id="applyRefineBtn" class="btn primary" type="button">应用到画布</button>
+            </div>
+          </section>
+        </aside>
+
+        <section class="canvas-stage" aria-label="主画布">
+          <div class="canvas-bar">
+            <span id="canvasMeta">主画布 / 4:5</span>
+            <span>点击海报标题区域进行局部修改</span>
+          </div>
+          <div class="canvas-wrap">
+            <article id="poster" class="poster" tabindex="0" aria-label="海报预览">
+              <div class="poster-label" id="posterLabel">Editorial / 2026</div>
+              <div class="poster-media" aria-hidden="true"></div>
+              <h2 id="posterTitle" class="poster-title">Untitled<br>Layout</h2>
+              <p id="posterCopy" class="poster-copy">A restrained poster system composed from your brief, selected style, and available materials.</p>
+              <div class="poster-date">06.29</div>
+              <div class="selection" aria-hidden="true"></div>
+            </article>
+            <div id="floatingNote" class="floating-note">
+              <p class="muted">已选中标题区域。可以换字体、改色，或用自然语言调整。</p>
+              <button id="localAiBtn" class="btn primary" type="button">让标题更优雅</button>
+            </div>
+          </div>
+        </section>
+
+        <aside class="panel" aria-label="调整面板">
+          <section class="panel-section">
+            <h2>Type</h2>
+            <div id="fontChoices" class="choice-panel open"></div>
+          </section>
+          <section class="panel-section">
+            <h3>局部调整</h3>
+            <p class="muted">点击画布中的标题区域后，可以在这里换字体、调整语气，或用自然语言描述局部修改。</p>
+            <div class="button-row">
+              <button id="toneLightBtn" class="btn subtle" type="button">标题更轻</button>
+              <button id="toneStrongBtn" class="btn subtle" type="button">层级更强</button>
+            </div>
+          </section>
+        </aside>
+      </section>
+    </main>
+  </div>
+
+  <div id="linkModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="linkTitle">
+    <div class="modal">
+      <h2 id="linkTitle">添加链接</h2>
+      <p class="muted">粘贴官网、产品页、文章页或图片链接。当前原型会先保存链接，并在生成后作为素材来源显示。</p>
+      <input id="linkInput" class="link-input" type="url" placeholder="https://example.com">
+      <div class="modal-actions">
+        <button id="cancelLinkBtn" class="btn subtle" type="button">取消</button>
+        <button id="saveLinkBtn" class="btn primary" type="button">加入素材</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="exportModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="exportTitle">
+    <div class="modal">
+      <h2 id="exportTitle">导出前检查</h2>
+      <div id="exportChecks" class="summary-item"></div>
+      <div class="modal-actions">
+        <button id="closeExportBtn" class="btn subtle" type="button">继续编辑</button>
+        <button class="btn primary" type="button">确认导出 PNG</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const styles = [
+      ["Editorial Minimal", "编辑极简：留白、细线、杂志标题层级"],
+      ["Swiss Grid", "瑞士网格：秩序、对齐、理性信息组织"],
+      ["Art Institution", "艺术机构：展览感、疏朗、低饱和"],
+      ["Luxury Product", "奢侈品静物：产品突出、克制高级"],
+      ["Tech Futurism", "科技未来主义：冷静网格、数字界面感"],
+      ["Data Graphic", "信息图形：图文并重、清晰解释复杂内容"],
+      ["Humanist Modern", "现代人文：温和文字、文化与生活方式"],
+      ["Mono Editorial", "黑白编辑：高对比、强文字排版"],
+      ["Corporate Minimal", "企业极简：稳重、低装饰、适合提案发布"],
+      ["Retro Print", "复古印刷：纸感、颗粒、旧刊物标题"],
+      ["Pixel Art", "像素艺术：复古数字视觉、块面图形语言"],
+      ["Neo Brutalism", "新粗野主义：强边界、直接信息、视觉冲突"]
+    ];
+
+    const palettes = [
+      ["象牙黑墨", ["#f8f5ee", "#151515", "#6f6a62", "#d8d0c2"], "极简、黑白编辑、作品集"],
+      ["暖白古铜", ["#fbf6ec", "#181511", "#9a6248", "#31433d"], "高级杂志、品牌新品"],
+      ["奶油灰杏", ["#f7efe3", "#221c17", "#b18464", "#d8c2a8"], "生活方式、温柔文艺"],
+      ["旧纸砖红", ["#f2e6d4", "#211915", "#a9543e", "#6b6f52"], "复古印刷、展览海报"],
+      ["陶土燕麦", ["#efe2d1", "#261c17", "#a66b50", "#7d7768"], "手作、餐饮、文化活动"],
+      ["鼠尾草米", ["#f3eadb", "#242016", "#6b7354", "#b99b72"], "自然、香氛、空间美学"],
+      ["苔绿象牙", ["#f1f2e9", "#16201b", "#536b57", "#b7b98b"], "植物、环保、安静品牌"],
+      ["冷杉银灰", ["#edf0ed", "#111c1b", "#3f5f59", "#9aa9a4"], "商务、建筑、成熟科技"],
+      ["雾蓝石灰", ["#eef1ee", "#172027", "#607684", "#b8c2bd"], "现代科技、信息图文"],
+      ["夜蓝瓷白", ["#f2f5f7", "#101821", "#456278", "#aeb9c5"], "冷静科技、专业发布"],
+      ["靛蓝雾灰", ["#eceef3", "#171925", "#555f8a", "#b8bdcd"], "数字产品、学术活动"],
+      ["紫灰月光", ["#f0edf2", "#1d1820", "#7a657f", "#c6b8c9"], "艺术展览、影像项目"],
+      ["玫瑰灰褐", ["#f6eee9", "#211817", "#8a514d", "#c4a79b"], "女性品牌、优雅生活"],
+      ["莓果奶白", ["#fbf1ee", "#231719", "#934858", "#d5aaa4"], "节日、轻奢、温柔活动"],
+      ["柑橘米白", ["#fff3e4", "#211a14", "#c6783e", "#b9a27e"], "市集、活动、活力但克制"],
+      ["炭黑银蓝", ["#111418", "#f2f0e8", "#6d7f8d", "#a66a52"], "深色杂志、科技夜间版"]
+    ];
+
+    const fonts = [
+      ["现代杂志", "宋体标题 / 黑体正文"],
+      ["文艺留白", "文楷标题 / 清晰正文"],
+      ["商业高级", "稳重宋体 / 中性黑体"],
+      ["黑白编辑", "重标题 / 强层级"]
+    ];
+
+    const state = {
+      style: styles[0][0],
+      palette: palettes[0][0],
+      paletteColors: [...palettes[0][1]],
+      font: fonts[0][0],
+      assets: [],
+      references: [],
+      links: [],
+      extracted: [],
+      ratio: "auto",
+      selectedRatio: "auto",
+      layout: "auto"
+    };
+
+    const $ = (id) => document.getElementById(id);
+
+    function renderStyleChoices(container, compact = false) {
+      container.innerHTML = styles.map(([name, desc]) => `
+        <button class="choice-card ${state.style === name ? "is-selected" : ""}" type="button" data-style="${name}">
+          <strong>${name}</strong><span>${desc}</span>
+        </button>
+      `).join("");
+      container.querySelectorAll("[data-style]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          state.style = btn.dataset.style;
+          updateSelections();
+        });
+      });
+    }
+
+    function renderPaletteChoices(container) {
+      container.innerHTML = palettes.map(([name, colors, desc]) => `
+        <button class="color-card ${state.palette === name ? "is-selected" : ""}" type="button" data-palette="${name}">
+          <strong>${name}</strong>
+          <em>${desc}</em>
+          <div class="swatch-row">${colors.map(c => `<span style="background:${c}"></span>`).join("")}</div>
+        </button>
+      `).join("");
+      container.querySelectorAll("[data-palette]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const found = palettes.find(p => p[0] === btn.dataset.palette);
+          state.palette = found[0];
+          state.paletteColors = [...found[1]];
+          updateSelections();
+        });
+      });
+    }
+
+    function isHexColor(value) {
+      return /^#[0-9a-fA-F]{6}$/.test(value.trim());
+    }
+
+    function syncColorInputs() {
+      const colorInputs = document.querySelectorAll("[data-color-index]");
+      const hexInputs = document.querySelectorAll("[data-hex-index]");
+      colorInputs.forEach(input => {
+        input.value = state.paletteColors[Number(input.dataset.colorIndex)];
+      });
+      hexInputs.forEach(input => {
+        input.value = state.paletteColors[Number(input.dataset.hexIndex)];
+      });
+    }
+
+    function applyPaletteToPreview() {
+      document.documentElement.style.setProperty("--accent", state.paletteColors[2]);
+      document.documentElement.style.setProperty("--deep-green", state.paletteColors[3]);
+      const poster = $("poster");
+      if (poster) {
+        poster.style.background = state.paletteColors[0];
+        poster.style.color = state.paletteColors[1];
+      }
+      const posterCopy = $("posterCopy");
+      const posterLabel = $("posterLabel");
+      if (posterCopy) posterCopy.style.color = state.paletteColors[1];
+      if (posterLabel) posterLabel.style.color = state.paletteColors[2];
+    }
+
+    function setCustomColor(index, value) {
+      if (!isHexColor(value)) return;
+      state.palette = "自定义色";
+      state.paletteColors[index] = value.toLowerCase();
+      updateSelections();
+    }
+
+    function renderFontChoices() {
+      $("fontChoices").innerHTML = fonts.map(([name, desc]) => `
+        <button class="font-card ${state.font === name ? "is-selected" : ""}" type="button" data-font="${name}">
+          <strong>${name}</strong><span class="muted">${desc}</span>
+        </button>
+      `).join("");
+      $("fontChoices").querySelectorAll("[data-font]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          state.font = btn.dataset.font;
+          updateSelections();
+        });
+      });
+    }
+
+    function updateSelections() {
+      $("selectedStyleChip").textContent = state.style;
+      $("selectedPaletteChip").textContent = state.palette;
+      $("setupLabel").textContent = `${state.style} / ${state.palette}`;
+      $("ratioChip").textContent = state.selectedRatio === "auto" ? "自动判断比例" : state.selectedRatio;
+      applyPaletteToPreview();
+      syncColorInputs();
+      renderStyleChoices($("styleChoices"));
+      renderPaletteChoices($("paletteChoices"));
+      renderStyleChoices($("workspaceStyleChoices"));
+      renderPaletteChoices($("workspacePaletteChoices"));
+      renderFontChoices();
+      document.querySelectorAll("[data-start-ratio]").forEach(btn => {
+        btn.classList.toggle("is-selected", btn.dataset.startRatio === state.selectedRatio);
+      });
+    }
+
+    function updateAssets() {
+      const all = [
+        ...state.assets,
+        ...state.references,
+        ...state.links.map(link => ({ name: link, type: "链接" }))
+      ];
+      $("assetStrip").classList.toggle("has-assets", all.length > 0);
+      $("assetStrip").innerHTML = all.map(item => `<span class="asset-token">${item.type || "素材"} · ${item.name}</span>`).join("");
+      if (all.length === 0) {
+        $("assetSummary").className = "empty-state";
+        $("assetSummary").textContent = "尚未添加素材。可继续上传原图、参考图、截图或链接。";
+      } else {
+        $("assetSummary").className = "summary-item";
+        $("assetSummary").innerHTML = all.map(item => {
+          const orientation = item.orientation && item.orientation !== "unknown"
+            ? ` / ${item.orientation === "landscape" ? "横图" : "竖图"}`
+            : "";
+          return `${item.type || "素材"}：${item.name}${orientation}`;
+        }).join("<br>");
+      }
+      updateExtraction();
+    }
+
+    function addFiles(files, type) {
+      [...files].forEach(file => {
+        const url = URL.createObjectURL(file);
+        const item = { name: file.name, type, url, orientation: "unknown" };
+        if (file.type.startsWith("image/")) {
+          const probe = new Image();
+          probe.onload = () => {
+            item.orientation = probe.naturalWidth >= probe.naturalHeight ? "landscape" : "portrait";
+            updateAssets();
+          };
+          probe.src = url;
+        }
+        if (type === "参考图") {
+          state.references.push(item);
+          state.extracted.push({
+            title: "参考图线索",
+            body: `${file.name}：提取色彩、留白、构图节奏；不直接复制原设计。`
+          });
+        } else {
+          state.assets.push(item);
+        }
+      });
+      updateAssets();
+      applyFirstImageToPoster();
+    }
+
+    function updateExtraction() {
+      const hasSources = state.references.length || state.links.length || state.extracted.length;
+      if (!hasSources) {
+        $("extractionSummary").className = "empty-state";
+        $("extractionSummary").textContent = "添加参考图、截图或链接后，这里会显示可用文字、风格线索和候选素材。";
+        return;
+      }
+      const cards = [];
+      state.references.forEach(item => {
+        cards.push(`<div class="extracted-card"><strong>参考图</strong><span>${item.name}</span><span>用途：参考风格 / 构图 / 可生成类似氛围素材</span></div>`);
+      });
+      state.links.forEach(link => {
+        cards.push(`<div class="extracted-card"><strong>链接来源</strong><span>${link}</span><span>待提取：标题、主图、品牌色、关键文字</span></div>`);
+      });
+      state.extracted.forEach(item => {
+        cards.push(`<div class="extracted-card"><strong>${item.title}</strong><span>${item.body}</span></div>`);
+      });
+      $("extractionSummary").className = "extraction-grid";
+      $("extractionSummary").innerHTML = cards.join("");
+    }
+
+    function addInlineLink() {
+      const value = $("inlineLinkInput").value.trim();
+      if (value) {
+        state.links.push(value);
+        $("inlineLinkInput").value = "";
+        updateAssets();
+      }
+    }
+
+    function parseRatio(text) {
+      const normalized = text.replace(/\s/g, "").toLowerCase();
+      if (/9[:：比]16|1080x1920|竖屏|手机海报|故事页/.test(normalized)) return "9:16";
+      if (/16[:：比]9|1920x1080|横屏|横版|大屏|网页横幅/.test(normalized)) return "16:9";
+      if (/a4|打印|提案/.test(normalized)) return "A4";
+      if (/1[:：比]1|方版|方形/.test(normalized)) return "1:1";
+      if (/4[:：比]5|小红书|竖版/.test(normalized)) return "4:5";
+      return "4:5";
+    }
+
+    function chooseRatio(brief) {
+      if (state.selectedRatio && state.selectedRatio !== "auto") return state.selectedRatio;
+      return parseRatio(brief);
+    }
+
+    function setStartRatio(ratio) {
+      state.selectedRatio = ratio;
+      updateSelections();
+    }
+
+    function setRatio(ratio) {
+      state.ratio = ratio;
+      $("canvasMeta").textContent = `主画布 / ${state.ratio}`;
+      $("ratioChip").textContent = state.selectedRatio === "auto" ? `自动 / ${state.ratio}` : state.ratio;
+      const poster = $("poster");
+      if (ratio === "16:9") {
+        poster.style.aspectRatio = "16 / 9";
+        poster.style.width = "min(72vw, 680px)";
+      } else if (ratio === "9:16") {
+        poster.style.aspectRatio = "9 / 16";
+        poster.style.width = "min(42vh, 330px)";
+      } else if (ratio === "A4") {
+        poster.style.aspectRatio = "1 / 1.414";
+        poster.style.width = "min(50vh, 370px)";
+      } else if (ratio === "1:1") {
+        poster.style.aspectRatio = "1 / 1";
+        poster.style.width = "min(54vh, 430px)";
+      } else {
+        poster.style.aspectRatio = "4 / 5";
+        poster.style.width = "min(54vh, 390px)";
+      }
+    }
+
+    function getTextWeight(segments) {
+      const total = segments.reduce((sum, segment) => sum + segment.text.length, 0);
+      if (segments.length >= 5 || total > 160) return "long";
+      if (segments.length <= 2 && total < 58) return "short";
+      return "medium";
+    }
+
+    function choosePosterLayout(segments, ratio) {
+      const textWeight = getTextWeight(segments);
+      const imageCount = state.assets.length;
+      const hasHorizontal = state.assets.some(item => item.orientation === "landscape");
+      const hasPortrait = state.assets.some(item => item.orientation === "portrait");
+      if (textWeight === "long") return "text-heavy";
+      if (imageCount >= 3) return "gallery";
+      if (ratio === "16:9" || hasHorizontal && !hasPortrait) return "horizontal";
+      return "editorial";
+    }
+
+    function applyPosterLayout(layout) {
+      state.layout = layout;
+      const poster = $("poster");
+      poster.classList.remove("layout-horizontal", "layout-gallery", "layout-text-heavy");
+      if (layout === "horizontal") poster.classList.add("layout-horizontal");
+      if (layout === "gallery") poster.classList.add("layout-gallery");
+      if (layout === "text-heavy") poster.classList.add("layout-text-heavy");
+      const names = {
+        editorial: "单图编辑版",
+        horizontal: "横图横幅版",
+        gallery: "多图画廊版",
+        "text-heavy": "长文编辑版"
+      };
+      $("canvasMeta").textContent = `主画布 / ${state.ratio} / ${names[layout] || "自动排版"}`;
+    }
+
+    function applyFirstImageToPoster() {
+      const firstImage = state.assets.find(item => item.url);
+      const media = document.querySelector(".poster-media");
+      if (firstImage) {
+        media.style.backgroundImage = `linear-gradient(rgba(21,19,15,0.10), rgba(21,19,15,0.10)), url("${firstImage.url}")`;
+        media.style.backgroundSize = "cover";
+        media.style.backgroundPosition = "center";
+      }
+    }
+
+    function escapeHtml(text) {
+      return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function splitCopySegments(copy) {
+      if (!copy.trim()) return [];
+      const normalized = copy.replace(/\r\n/g, "\n").trim();
+      const primaryParts = normalized.includes("\n\n")
+        ? normalized.split(/\n{2,}/)
+        : normalized.split(/\n(?=(?:[-•*]\s|\d+[.、]\s))|\n/);
+      return primaryParts
+        .map(part => part.replace(/^[-•*]\s*/, "").replace(/^\d+[.、]\s*/, "").trim())
+        .filter(Boolean)
+        .map((text, index) => ({
+          role: index === 0 ? "Title" : index === 1 ? "Lead" : `Block ${index + 1}`,
+          text
+        }));
+    }
+
+    function renderSegments(segments) {
+      if (!segments.length) {
+        $("segmentSummary").className = "empty-state";
+        $("segmentSummary").textContent = "还没有文字素材。生成后会按空行、换行、项目符号和序号拆分。";
+        return;
+      }
+      $("segmentSummary").className = "segments-list";
+      $("segmentSummary").innerHTML = segments.map(segment => `
+        <div class="segment-card">
+          <strong>${segment.role}</strong>
+          <span>${escapeHtml(segment.text)}</span>
+        </div>
+      `).join("");
+    }
+
+    function renderLiveSegmentPreview() {
+      const target = $("liveSegmentPreview");
+      if (!target) return;
+      const segments = splitCopySegments($("copyInput").value);
+      if (!segments.length) {
+        target.innerHTML = `<div class="empty-state">在上方输入文字后，这里会立即显示分段结果。</div>`;
+        return;
+      }
+      target.innerHTML = segments.slice(0, 5).map(segment => `
+        <div class="mini-segment">
+          <strong>${segment.role}</strong>
+          <span>${escapeHtml(segment.text)}</span>
+        </div>
+      `).join("") + (segments.length > 5 ? `<div class="muted">还有 ${segments.length - 5} 段，会在生成后进入左侧“文字分段”。</div>` : "");
+    }
+
+    function generate() {
+      const brief = $("briefInput").value.trim();
+      const copy = $("copyInput").value.trim();
+      const sourceForTitle = copy || brief;
+      const segments = splitCopySegments(copy);
+      const title = segments[0]?.text || sourceForTitle.match(/主题是[「“"]([^」”"]+)/)?.[1] || sourceForTitle.match(/标题[:：]\s*([^\n，。]+)/)?.[1] || sourceForTitle.match(/主题[:：]\s*([^\n，。]+)/)?.[1] || "Untitled Layout";
+      const bodyLines = segments.slice(1).map(segment => segment.text);
+      const ratio = chooseRatio(brief);
+      const layout = choosePosterLayout(segments, ratio);
+      $("startView").classList.add("hidden");
+      $("workspace").classList.add("active");
+      $("projectStatus").textContent = `${state.style} / ${state.palette}`;
+      $("briefSummary").className = "summary-item";
+      $("briefSummary").innerHTML = [
+        brief ? `Brief：${escapeHtml(brief).replace(/\n/g, "<br>")}` : "Brief：未填写",
+        copy ? `文字素材：已识别 ${segments.length} 段` : "文字素材：未填写"
+      ].join("<br><br>");
+      renderSegments(segments);
+      $("posterTitle").innerHTML = escapeHtml(title).replace(/\s+/g, "<br>");
+      $("posterCopy").textContent = bodyLines.length ? bodyLines.join(" / ").slice(0, 120) : "Add poster copy in the text material field.";
+      setRatio(ratio);
+      applyPosterLayout(layout);
+      applyFirstImageToPoster();
+      updateAssets();
+    }
+
+    $("toggleStyleBtn").addEventListener("click", () => $("styleChoices").classList.toggle("open"));
+    $("togglePaletteBtn").addEventListener("click", () => $("paletteChoices").classList.toggle("open"));
+    document.querySelectorAll("[data-start-ratio]").forEach(btn => {
+      btn.addEventListener("click", () => setStartRatio(btn.dataset.startRatio));
+    });
+    $("addFileBtn").addEventListener("click", () => $("imageInput").click());
+    $("addReferenceBtn").addEventListener("click", () => $("referenceInput").click());
+    $("sideUploadBtn").addEventListener("click", () => $("imageInput").click());
+    $("sideReferenceBtn").addEventListener("click", () => $("referenceInput").click());
+    $("imageInput").addEventListener("change", (event) => addFiles(event.target.files, "图片"));
+    $("referenceInput").addEventListener("change", (event) => addFiles(event.target.files, "参考图"));
+    $("copyInput").addEventListener("input", renderLiveSegmentPreview);
+    document.querySelectorAll("[data-color-index]").forEach(input => {
+      input.addEventListener("input", () => {
+        setCustomColor(Number(input.dataset.colorIndex), input.value);
+      });
+    });
+    document.querySelectorAll("[data-hex-index]").forEach(input => {
+      const applyHex = () => setCustomColor(Number(input.dataset.hexIndex), input.value);
+      input.addEventListener("blur", applyHex);
+      input.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          applyHex();
+        }
+      });
+    });
+    $("addInlineLinkBtn").addEventListener("click", addInlineLink);
+    $("sideLinkBtn").addEventListener("click", () => $("linkModal").classList.add("open"));
+    $("cancelLinkBtn").addEventListener("click", () => $("linkModal").classList.remove("open"));
+    $("saveLinkBtn").addEventListener("click", () => {
+      const value = $("linkInput").value.trim();
+      if (value) state.links.push(value);
+      $("linkInput").value = "";
+      $("linkModal").classList.remove("open");
+      updateAssets();
+    });
+    $("inlineLinkInput").addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        addInlineLink();
+      }
+    });
+    $("extractMoreBtn").addEventListener("click", () => {
+      if (!state.references.length && !state.links.length) {
+        state.extracted.push({ title: "暂无来源", body: "先添加参考图、截图或链接，再继续提取。" });
+      } else {
+        state.extracted.push({
+          title: `提取批次 ${state.extracted.length + 1}`,
+          body: "新增候选：主色、版心比例、标题层级、可生成的抽象主视觉。"
+        });
+      }
+      updateExtraction();
+    });
+    $("generateBtn").addEventListener("click", generate);
+
+    $("poster").addEventListener("click", () => {
+      $("poster").classList.toggle("selected");
+      $("floatingNote").classList.toggle("visible");
+    });
+    $("localAiBtn").addEventListener("click", () => {
+      $("posterTitle").style.fontStyle = "italic";
+      $("posterTitle").style.letterSpacing = "0.01em";
+    });
+    $("toneLightBtn").addEventListener("click", () => {
+      $("posterTitle").style.fontStyle = "italic";
+      $("posterTitle").style.fontWeight = "400";
+      $("posterTitle").style.lineHeight = "0.96";
+    });
+    $("toneStrongBtn").addEventListener("click", () => {
+      $("posterTitle").style.fontStyle = "normal";
+      $("posterTitle").style.fontWeight = "700";
+      $("posterTitle").style.lineHeight = "0.88";
+    });
+    $("applyRefineBtn").addEventListener("click", () => {
+      const text = $("refineInput").value.trim();
+      if (text) $("posterCopy").textContent = text;
+    });
+    document.querySelectorAll(".ratio-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        state.selectedRatio = btn.dataset.ratio;
+        setRatio(btn.dataset.ratio);
+        updateSelections();
+      });
+    });
+    $("historyBtn").addEventListener("click", () => alert("历史版本：V1 初稿 / V2 当前版。下一步可做成右侧抽屉。"));
+    $("exportBtn").addEventListener("click", () => {
+      const checks = [];
+      checks.push("文字层级：已建立");
+      checks.push(state.assets.length || state.links.length ? "素材：已添加" : "素材：未添加，当前使用示意主视觉");
+      checks.push(`比例：${state.ratio}`);
+      checks.push(`风格：${state.style} / ${state.palette}`);
+      $("exportChecks").innerHTML = checks.join("<br>");
+      $("exportModal").classList.add("open");
+    });
+    $("closeExportBtn").addEventListener("click", () => $("exportModal").classList.remove("open"));
+
+    renderLiveSegmentPreview();
+    updateSelections();
+    updateAssets();
+  </script>
+</body>
+</html>
